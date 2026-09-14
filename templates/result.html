@@ -74,7 +74,7 @@ header h1 {
 
 .card h1{
     color: var(--gold-light);
-    font-size: 28px;
+    font-size: 26px;
     margin: 8px 0 0 0;
     text-shadow: var(--gold-glow);
     letter-spacing: 2px;
@@ -113,6 +113,31 @@ p{
     letter-spacing: 2px;
 }
 
+.energy-row {
+    margin-bottom: 14px;
+}
+
+.energy-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.energy-track {
+    background: rgba(255, 255, 255, 0.08);
+    height: 9px;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(197, 160, 89, 0.2);
+}
+
+.energy-fill {
+    background: linear-gradient(90deg, #8C6D28, var(--gold-light));
+    height: 100%;
+    transition: width 0.6s ease-in-out;
+}
+
 .back-btn {
     display: block;
     text-align: center;
@@ -143,17 +168,42 @@ p{
         <h1>✦ 八字星象導航 ✦</h1>
     </header>
 
+    <!-- 日主性格原型卡片 -->
     <div class="card">
         <h2>你的命主核心 (Day Master)</h2>
-        <h1>{{ day_master | safe }}</h1>
+        <h1>{{ day_master | safe }} · {{ day_profile.nature }}</h1>
+        <p style="color: var(--gold-light); line-height: 1.7; font-size: 15px;">{{ day_profile.traits }}</p>
     </div>
 
+    <!-- 五行能量分佈卡片 -->
+    <div class="card">
+        <h2>五行先天氣場能量 (Energy Distribution)</h2>
+        <div style="margin-top: 18px;">
+            {% for item in distribution %}
+            <div class="energy-row">
+                <div class="energy-header">
+                    <span>{{ item.name }}行</span>
+                    <span style="color: var(--gold-light);">{{ item.count }} 字 ({{ item.percent }}%)</span>
+                </div>
+                <div class="energy-track">
+                    <div class="energy-fill" style="width: {{ item.percent }}%;"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <p style="font-size: 13px; color: #A0AAB2; margin-top: 15px; border-top: 1px solid rgba(197, 160, 89, 0.15); padding-top: 10px;">
+            ✦ 命中偏弱元素為：<strong style="color: var(--gold-light);">{{ useful_element }}</strong>，建議重點藉由開運色彩與宜行指南平衡調和。
+        </p>
+    </div>
+
+    <!-- 今日主題 -->
     <div class="card theme">
         <h2>今日星象主題</h2>
         <h1>{{ theme.title }}</h1>
         <p>{{ theme.desc }}</p>
     </div>
 
+    <!-- 四柱八字排盤 -->
     <div class="card">
         <h2>四柱命盤解析</h2>
         <div class="bazi-grid">
@@ -164,11 +214,13 @@ p{
         </div>
     </div>
 
+    <!-- 幸運色指南 -->
     <div class="card">
         <h2>開運色彩指南</h2>
         <p>🎨 核心色系：{{ lucky_colors[0] }}、{{ lucky_colors[1] }}</p>
     </div>
 
+    <!-- 今日宜 -->
     <div class="card">
         <h2>今日宜行</h2>
         {% for item in good %}
@@ -176,6 +228,7 @@ p{
         {% endfor %}
     </div>
 
+    <!-- 今日忌 -->
     <div class="card">
         <h2>今日宜避</h2>
         {% for item in bad %}

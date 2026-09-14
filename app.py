@@ -1,8 +1,6 @@
-from flask import Flask
-from flask import render_template
-from flask import request
-import random
 import os
+import random
+from flask import Flask, render_template, request
 
 from data.bazi_engine import *
 from data.colors import *
@@ -87,9 +85,11 @@ ELEMENT_BAD = {
     ]
 }
 
+
 @app.route("/")
 def home():
     return render_template("index.html")
+
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -98,9 +98,11 @@ def result():
     day = int(request.form["day"])
 
     bazi = get_bazi(year, month, day)
-    day_master = get_day_master(bazi["day"])
-    elements = get_elements(bazi)
-    useful_element = get_useful_element(elements)
+    day_stem, day_elem = get_day_master(bazi["day"])
+    day_profile = DAY_MASTER_PROFILES.get(day_stem, {})
+
+    elements_counter, elements_distribution = get_elements_percentage(bazi)
+    useful_element = get_useful_element(elements_counter)
     theme = get_theme(useful_element)
     lucky_colors = LUCKY_COLORS[useful_element]
 
@@ -121,7 +123,7 @@ def result():
         "hour": colorize_pillar(bazi["hour"])
     }
 
-    colored_day_master = colorize_pillar(day_master)
+    colored_day_master = f"{colorize_pillar(day_stem)}（{colorize_pillar(day_elem)}）"
 
     # 🌟 隨機從該五行抽樣 3 個宜忌項目
     good_list = random.sample(ELEMENT_GOOD.get(useful_element, ELEMENT_GOOD["木"]), 3)
@@ -131,11 +133,15 @@ def result():
         "result.html",
         bazi=colored_bazi,
         day_master=colored_day_master,
+        day_profile=day_profile,
+        distribution=elements_distribution,
+        useful_element=useful_element,
         theme=theme,
         lucky_colors=lucky_colors,
         good=good_list,
         bad=bad_list
     )
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
