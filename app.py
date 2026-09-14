@@ -2,6 +2,7 @@ from flask import Flask
 from flask import render_template
 from flask import request
 import random
+import os
 
 from data.bazi_engine import *
 from data.colors import *
@@ -137,4 +138,5 @@ def result():
     )
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
