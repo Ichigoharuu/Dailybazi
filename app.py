@@ -8,7 +8,6 @@ from data.themes import *
 
 app = Flask(__name__)
 
-# 🌟 豐富的五行開運宜忌資料庫
 ELEMENT_GOOD = {
     "木": [
         "規劃長期願景與藍圖", 
@@ -96,8 +95,9 @@ def result():
     year = int(request.form["year"])
     month = int(request.form["month"])
     day = int(request.form["day"])
+    hour = int(request.form.get("hour", 12))
 
-    bazi = get_bazi(year, month, day)
+    bazi = get_bazi(year, month, day, hour)
     day_stem, day_elem = get_day_master(bazi["day"])
     day_profile = DAY_MASTER_PROFILES.get(day_stem, {})
 
@@ -106,7 +106,6 @@ def result():
     theme = get_theme(useful_element)
     lucky_colors = LUCKY_COLORS[useful_element]
 
-    # 🌟 處理四柱文字與日主的五行彩色標籤
     def colorize_pillar(pillar_str):
         if not pillar_str:
             return ""
@@ -125,7 +124,6 @@ def result():
 
     colored_day_master = f"{colorize_pillar(day_stem)}（{colorize_pillar(day_elem)}）"
 
-    # 🌟 隨機從該五行抽樣 3 個宜忌項目
     good_list = random.sample(ELEMENT_GOOD.get(useful_element, ELEMENT_GOOD["木"]), 3)
     bad_list = random.sample(ELEMENT_BAD.get(useful_element, ELEMENT_BAD["木"]), 3)
 

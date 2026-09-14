@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="utf-8">
+    <title>八字星象導航</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-primary: #C5A059; 
+            --gold-light: #E6C579;
+            --gold-dark: #8C6D28;
+            --bg-deep: #050508;
+            --card-bg: rgba(12, 12, 18, 0.85);
+            --gold-glow: 0 0 20px rgba(197, 160, 89, 0.25);
+        }
+
+        body{
+            background: var(--bg-deep);
+            color: #EAEAEA;
+            font-family: 'Noto Serif TC', serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 25px 35px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 75px 110px, rgba(197, 160, 89, 0.4), rgba(0,0,0,0)),
+                linear-gradient(rgba(197, 160, 89, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(197, 160, 89, 0.03) 1px, transparent 1px);
+            background-size: 180px 180px, 220px 220px, 60px 60px, 60px 60px;
+            opacity: 0.35;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .astrolabe-bg {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 700px;
+            height: 700px;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+            animation: spinAstrolabe 300s linear infinite;
+        }
+
+        @keyframes spinAstrolabe {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card-container {
+            background: var(--card-bg);
+            border: 2px solid var(--gold-primary);
+            border-radius: 4px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), var(--gold-glow);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .card-container::before, .card-container::after {
+            content: '✦';
+            position: absolute;
+            color: var(--gold-primary);
+            font-size: 14px;
+        }
+        .card-container::before { top: 10px; left: 10px; }
+        .card-container::after { bottom: 10px; right: 10px; }
+
+        h1 {
+            color: var(--gold-light);
+            font-size: 28px;
+            font-weight: 900;
+            margin-top: 0;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(197, 160, 89, 0.4);
+            letter-spacing: 3px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--gold-primary);
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(5, 5, 8, 0.9);
+            border: 1px solid var(--gold-dark);
+            border-radius: 2px;
+            color: var(--gold-light);
+            font-size: 15px;
+            font-family: 'Noto Serif TC', serif;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        select option {
+            background: #0D0F14;
+            color: var(--gold-light);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #8C6D28, #C5A059, #E6C579);
+            color: #050508;
+            border: none;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Noto Serif TC', serif;
+            border-radius: 2px;
+            cursor: pointer;
+            margin-top: 12px;
+            letter-spacing: 3px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.2);
+        }
+
+        button:hover {
+            opacity: 0.95;
+            box-shadow: 0 6px 20px rgba(197, 160, 89, 0.4);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <svg class="astrolabe-bg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="250" cy="250" r="245" fill="none" stroke="#C5A059" stroke-width="2"/>
+        <circle cx="250" cy="250" r="230" fill="none" stroke="#C5A059" stroke-width="1" stroke-dasharray="3 3"/>
+        <circle cx="250" cy="250" r="180" fill="none" stroke="#C5A059" stroke-width="1.5"/>
+        <circle cx="250" cy="250" r="120" fill="none" stroke="#C5A059" stroke-width="1"/>
+        <line x1="250" y1="5" x2="250" y2="495" stroke="#C5A059" stroke-width="1" stroke-dasharray="5 5"/>
+        <line x1="5" y1="250" x2="495" y2="250" stroke="#C5A059" stroke-width="1" stroke-dasharray="5 5"/>
+        <text x="250" y="250" font-size="70" text-anchor="middle" dominant-baseline="central" fill="#C5A059">✦</text>
+    </svg>
+
+    <div class="wrapper">
+        <div class="card-container">
+            <h1>✦ 八字星象導航 ✦</h1>
+
+            <form action="/result" method="POST">
+                <div class="input-group">
+                    <label>出生年份 (Year)</label>
+                    <input type="number" name="year" placeholder="例如: 1997" required>
+                </div>
+
+                <div class="input-group">
+                    <label>出生月份 (Month)</label>
+                    <input type="number" name="month" placeholder="例如: 4" min="1" max="12" required>
+                </div>
+
+                <div class="input-group">
+                    <label>出生日期 (Day)</label>
+                    <input type="number" name="day" placeholder="例如: 8" min="1" max="31" required>
+                </div>
+
+                <div class="input-group">
+                    <label>出生時辰 (Hour)</label>
+                    <select name="hour">
+                        <option value="12">時辰不詳（以午時/正午排盤）</option>
+                        <option value="0">子時 (23:00 - 00:59)</option>
+                        <option value="2">丑時 (01:00 - 02:59)</option>
+                        <option value="4">寅時 (03:00 - 04:59)</option>
+                        <option value="6">卯時 (05:00 - 06:59)</option>
+                        <option value="8">辰時 (07:00 - 08:59)</option>
+                        <option value="10">巳時 (09:00 - 10:59)</option>
+                        <option value="12">午時 (11:00 - 12:59)</option>
+                        <option value="14">未時 (13:00 - 14:59)</option>
+                        <option value="16">申時 (15:00 - 16:59)</option>
+                        <option value="18">酉時 (17:00 - 18:59)</option>
+                        <option value="20">戌時 (19:00 - 20:59)</option>
+                        <option value="22">亥時 (21:00 - 22:59)</option>
+                    </select>
+                </div>
+
+                <button type="submit">
+                    開啟命盤排布
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
