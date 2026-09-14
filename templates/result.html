@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+<meta charset="utf-8">
+<title>八字星象排盤結果</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --gold-primary: #C5A059; 
+    --gold-light: #E6C579;
+    --bg-gradient: linear-gradient(135deg, #050508 0%, #1A1A2E 50%, #0F0C29 100%);
+    --card-bg: rgba(12, 12, 18, 0.88);
+    --gold-glow: 0 0 15px rgba(197, 160, 89, 0.25);
+}
+
+body{
+    background: var(--bg-gradient);
+    color: #EAEAEA;
+    font-family: 'Noto Serif TC', serif;
+    padding: 40px 20px;
+    max-width: 650px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(1.5px 1.5px at 30px 40px, #ffffff, rgba(0,0,0,0)),
+                      radial-gradient(1px 1px at 90px 130px, rgba(197, 160, 89, 0.5), rgba(0,0,0,0));
+    background-size: 200px 200px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.container {
+    position: relative;
+    z-index: 10;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: var(--gold-light);
+    font-size: 30px;
+    text-shadow: var(--gold-glow);
+    letter-spacing: 3px;
+    margin: 0;
+}
+
+.card{
+    background: var(--card-bg);
+    border: 1px solid var(--gold-primary);
+    border-radius: 4px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6), var(--gold-glow);
+    backdrop-filter: blur(10px);
+    position: relative;
+}
+
+.theme{
+    background: linear-gradient(135deg, rgba(12, 12, 18, 0.95), rgba(40, 30, 70, 0.95));
+    border-color: var(--gold-light);
+}
+
+.card h1{
+    color: var(--gold-light);
+    font-size: 28px;
+    margin: 8px 0 0 0;
+    text-shadow: var(--gold-glow);
+    letter-spacing: 2px;
+}
+
+.card h2{
+    font-size: 13px;
+    color: var(--gold-primary);
+    margin: 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+    padding-bottom: 6px;
+}
+
+p{
+    margin: 12px 0 0 0;
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+.bazi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.bazi-item {
+    background: rgba(5, 5, 8, 0.6);
+    padding: 14px;
+    border-radius: 2px;
+    border: 1px solid rgba(197, 160, 89, 0.3);
+    font-size: 18px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.back-btn {
+    display: block;
+    text-align: center;
+    background: linear-gradient(135deg, #8C6D28, #C5A059, #E6C579);
+    color: #050508;
+    border: none;
+    padding: 14px;
+    border-radius: 2px;
+    text-decoration: none;
+    font-weight: bold;
+    letter-spacing: 3px;
+    margin-top: 30px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(197, 160, 89, 0.2);
+}
+
+.back-btn:hover {
+    opacity: 0.95;
+    box-shadow: 0 6px 20px rgba(197, 160, 89, 0.4);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <header>
+        <h1>✦ 八字星象導航 ✦</h1>
+    </header>
+
+    <div class="card">
+        <h2>你的命主核心 (Day Master)</h2>
+        <h1>{{ day_master | safe }}</h1>
+    </div>
+
+    <div class="card theme">
+        <h2>今日星象主題</h2>
+        <h1>{{ theme.title }}</h1>
+        <p>{{ theme.desc }}</p>
+    </div>
+
+    <div class="card">
+        <h2>四柱命盤解析</h2>
+        <div class="bazi-grid">
+            <div class="bazi-item">年柱：{{ bazi.year | safe }}</div>
+            <div class="bazi-item">月柱：{{ bazi.month | safe }}</div>
+            <div class="bazi-item">日柱：{{ bazi.day | safe }}</div>
+            <div class="bazi-item">時柱：{{ bazi.hour | safe }}</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>開運色彩指南</h2>
+        <p>🎨 核心色系：{{ lucky_colors[0] }}、{{ lucky_colors[1] }}</p>
+    </div>
+
+    <div class="card">
+        <h2>今日宜行</h2>
+        {% for item in good %}
+        <p>✨ {{ item }}</p>
+        {% endfor %}
+    </div>
+
+    <div class="card">
+        <h2>今日宜避</h2>
+        {% for item in bad %}
+        <p>⚡ {{ item }}</p>
+        {% endfor %}
+    </div>
+
+    <a href="/" class="back-btn">← 重新測算命盤</a>
+</div>
+
+</body>
+</html>
