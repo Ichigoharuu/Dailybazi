@@ -13,7 +13,6 @@ BRANCH_ELEMENT = {
     "申": "金", "酉": "金", "戌": "土", "亥": "水"
 }
 
-# 🌟 十天干日主心性原型
 DAY_MASTER_PROFILES = {
     "甲": {"nature": "棟樑之木", "traits": "仁慈正直、有上進心，如參天大樹般具領袖氣質，但過硬則易折。"},
     "乙": {"nature": "花草之木", "traits": "身段柔韌、適應力極強，善於借力使力與人際周旋，內心堅韌。"},
@@ -27,8 +26,8 @@ DAY_MASTER_PROFILES = {
     "癸": {"nature": "雨露之水", "traits": "平靜內斂、直覺敏銳，善於默默滋養萬物，情感豐富且帶有神祕感。"}
 }
 
-def get_bazi(year, month, day):
-    solar = Solar.fromYmdHms(year, month, day, 12, 0, 0)
+def get_bazi(year, month, day, hour=12):
+    solar = Solar.fromYmdHms(year, month, day, hour, 0, 0)
     lunar = solar.getLunar()
     ec = lunar.getEightChar()
     return {
@@ -51,7 +50,7 @@ def get_elements_percentage(bazi):
         elements.append(BRANCH_ELEMENT[branch])
 
     counter = Counter(elements)
-    total = len(elements) # 八字共 8 個字
+    total = len(elements)
     
     distribution = []
     for elem in ["木", "火", "土", "金", "水"]:

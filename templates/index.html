@@ -102,7 +102,7 @@
         }
 
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             text-align: left;
         }
 
@@ -114,21 +114,26 @@
             letter-spacing: 1px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 12px 15px;
             background: rgba(5, 5, 8, 0.9);
             border: 1px solid var(--gold-dark);
             border-radius: 2px;
             color: var(--gold-light);
-            font-size: 16px;
+            font-size: 15px;
             font-family: 'Noto Serif TC', serif;
             box-sizing: border-box;
             outline: none;
             transition: all 0.3s;
         }
 
-        input:focus {
+        select option {
+            background: #0D0F14;
+            color: var(--gold-light);
+        }
+
+        input:focus, select:focus {
             border-color: var(--gold-primary);
             box-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
         }
@@ -144,7 +149,7 @@
             font-family: 'Noto Serif TC', serif;
             border-radius: 2px;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 12px;
             letter-spacing: 3px;
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(197, 160, 89, 0.2);
@@ -182,12 +187,31 @@
 
                 <div class="input-group">
                     <label>出生月份 (Month)</label>
-                    <input type="number" name="month" placeholder="例如: 4" required>
+                    <input type="number" name="month" placeholder="例如: 4" min="1" max="12" required>
                 </div>
 
                 <div class="input-group">
                     <label>出生日期 (Day)</label>
-                    <input type="number" name="day" placeholder="例如: 8" required>
+                    <input type="number" name="day" placeholder="例如: 8" min="1" max="31" required>
+                </div>
+
+                <div class="input-group">
+                    <label>出生時辰 (Hour)</label>
+                    <select name="hour">
+                        <option value="12">時辰不詳（以午時/正午排盤）</option>
+                        <option value="0">子時 (23:00 - 00:59)</option>
+                        <option value="2">丑時 (01:00 - 02:59)</option>
+                        <option value="4">寅時 (03:00 - 04:59)</option>
+                        <option value="6">卯時 (05:00 - 06:59)</option>
+                        <option value="8">辰時 (07:00 - 08:59)</option>
+                        <option value="10">巳時 (09:00 - 10:59)</option>
+                        <option value="12">午時 (11:00 - 12:59)</option>
+                        <option value="14">未時 (13:00 - 14:59)</option>
+                        <option value="16">申時 (15:00 - 16:59)</option>
+                        <option value="18">酉時 (17:00 - 18:59)</option>
+                        <option value="20">戌時 (19:00 - 20:59)</option>
+                        <option value="22">亥時 (21:00 - 22:59)</option>
+                    </select>
                 </div>
 
                 <button type="submit">
