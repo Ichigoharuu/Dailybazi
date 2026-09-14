@@ -168,14 +168,24 @@ p{
         <h1>✦ 八字星象導航 ✦</h1>
     </header>
 
-    <!-- 日主性格原型卡片 -->
+    <div class="card" style="border: 1px solid var(--gold-light); background: linear-gradient(135deg, rgba(20, 15, 30, 0.95), rgba(10, 10, 15, 0.95));">
+        <h2>✦ 命理大師 · 靈犀批命 ✦</h2>
+        <div style="text-align: center; margin: 18px 0; padding: 15px; border-left: 2px solid var(--gold-primary); border-right: 2px solid var(--gold-primary); background: rgba(0, 0, 0, 0.3);">
+            <p style="font-size: 17px; color: var(--gold-light); letter-spacing: 3px; font-weight: bold; margin: 0; line-height: 1.8;">
+                {{ ai_fortune.poem }}
+            </p>
+        </div>
+        <p style="font-size: 15px; line-height: 1.8; color: #EAEAEA; margin-top: 10px;">
+            {{ ai_fortune.analysis }}
+        </p>
+    </div>
+
     <div class="card">
         <h2>你的命主核心 (Day Master)</h2>
         <h1>{{ day_master | safe }} · {{ day_profile.nature }}</h1>
         <p style="color: var(--gold-light); line-height: 1.7; font-size: 15px;">{{ day_profile.traits }}</p>
     </div>
 
-    <!-- 五行能量分佈卡片 -->
     <div class="card">
         <h2>五行先天氣場能量 (Energy Distribution)</h2>
         <div style="margin-top: 18px;">
@@ -196,14 +206,12 @@ p{
         </p>
     </div>
 
-    <!-- 今日主題 -->
     <div class="card theme">
         <h2>今日星象主題</h2>
         <h1>{{ theme.title }}</h1>
         <p>{{ theme.desc }}</p>
     </div>
 
-    <!-- 四柱八字排盤 -->
     <div class="card">
         <h2>四柱命盤解析</h2>
         <div class="bazi-grid">
@@ -214,13 +222,11 @@ p{
         </div>
     </div>
 
-    <!-- 幸運色指南 -->
     <div class="card">
         <h2>開運色彩指南</h2>
         <p>🎨 核心色系：{{ lucky_colors[0] }}、{{ lucky_colors[1] }}</p>
     </div>
 
-    <!-- 今日宜 -->
     <div class="card">
         <h2>今日宜行</h2>
         {% for item in good %}
@@ -228,7 +234,6 @@ p{
         {% endfor %}
     </div>
 
-    <!-- 今日忌 -->
     <div class="card">
         <h2>今日宜避</h2>
         {% for item in bad %}

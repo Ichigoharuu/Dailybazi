@@ -5,6 +5,7 @@ from flask import Flask, render_template, request
 from data.bazi_engine import *
 from data.colors import *
 from data.themes import *
+from data.ai_master import get_ai_fortune
 
 app = Flask(__name__)
 
@@ -97,14 +98,22 @@ def result():
     day = int(request.form["day"])
     hour = int(request.form.get("hour", 12))
 
-    bazi = get_bazi(year, month, day, hour)
-    day_stem, day_elem = get_day_master(bazi["day"])
+    raw_bazi = get_bazi(year, month, day, hour)
+    day_stem, day_elem = get_day_master(raw_bazi["day"])
     day_profile = DAY_MASTER_PROFILES.get(day_stem, {})
 
-    elements_counter, elements_distribution = get_elements_percentage(bazi)
+    elements_counter, elements_distribution = get_elements_percentage(raw_bazi)
     useful_element = get_useful_element(elements_counter)
     theme = get_theme(useful_element)
     lucky_colors = LUCKY_COLORS[useful_element]
+
+    ai_fortune = get_ai_fortune(
+        bazi=raw_bazi,
+        day_master=f"{day_stem}{day_elem}",
+        day_profile=day_profile,
+        distribution=elements_distribution,
+        useful_element=useful_element
+    )
 
     def colorize_pillar(pillar_str):
         if not pillar_str:
@@ -116,10 +125,10 @@ def result():
         return res
 
     colored_bazi = {
-        "year": colorize_pillar(bazi["year"]),
-        "month": colorize_pillar(bazi["month"]),
-        "day": colorize_pillar(bazi["day"]),
-        "hour": colorize_pillar(bazi["hour"])
+        "year": colorize_pillar(raw_bazi["year"]),
+        "month": colorize_pillar(raw_bazi["month"]),
+        "day": colorize_pillar(raw_bazi["day"]),
+        "hour": colorize_pillar(raw_bazi["hour"])
     }
 
     colored_day_master = f"{colorize_pillar(day_stem)}（{colorize_pillar(day_elem)}）"
@@ -134,6 +143,7 @@ def result():
         day_profile=day_profile,
         distribution=elements_distribution,
         useful_element=useful_element,
+        ai_fortune=ai_fortune,
         theme=theme,
         lucky_colors=lucky_colors,
         good=good_list,

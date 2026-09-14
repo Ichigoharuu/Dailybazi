@@ -1,2 +1,3 @@
 Flask
 lunar-python
+google-genai
