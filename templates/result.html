@@ -141,6 +141,82 @@
             height: 100%;
         }
 
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.1em;
+            background-color: var(--gold-light);
+            margin-left: 3px;
+            vertical-align: middle;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .timeline-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: thin;
+        }
+        .timeline-item {
+            min-width: 95px;
+            padding: 10px 8px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            text-align: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .timeline-item.current {
+            border: 1px solid var(--gold-light);
+            background: rgba(197, 160, 89, 0.15);
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+        }
+        .tag-favorable { color: #68D391; }
+        .tag-clash { color: #FC8181; }
+        .tag-neutral { color: #CBD5E0; }
+
+        .chat-box {
+            background: rgba(5, 5, 8, 0.7);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 4px;
+            padding: 12px;
+            max-height: 180px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            background: rgba(5, 5, 8, 0.9);
+            border: 1px solid var(--gold-primary);
+            color: #EAEAEA;
+            font-family: inherit;
+            border-radius: 2px;
+            outline: none;
+        }
+        .chat-btn {
+            background: linear-gradient(135deg, #8C6D28, #C5A059);
+            border: none;
+            color: #050508;
+            padding: 0 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
         .btn-group {
             display: flex;
             gap: 15px;
@@ -179,20 +255,31 @@
         </div>
     </header>
 
-    <!-- 1. AI 靈犀批命（通俗解讀與籤詩） -->
+    <!-- 1. AI 靈犀批命（打字機效果） -->
     <div class="card" style="border: 1px solid var(--gold-light); background: linear-gradient(135deg, rgba(20, 15, 30, 0.95), rgba(10, 10, 15, 0.95));">
         <h2>✦ 靈犀批命 · 心態指引 ✦</h2>
         <div style="text-align: center; margin: 15px 0; padding: 14px; border-left: 2px solid var(--gold-primary); border-right: 2px solid var(--gold-primary); background: rgba(0, 0, 0, 0.35);">
-            <p style="font-size: 16px; color: var(--gold-light); letter-spacing: 2.5px; font-weight: bold; margin: 0; line-height: 1.8; white-space: pre-line;">
-                {{ ai_fortune.poem }}
-            </p>
+            <p id="typewriter-poem" style="font-size: 16px; color: var(--gold-light); letter-spacing: 2.5px; font-weight: bold; margin: 0; line-height: 1.8; white-space: pre-line; min-height: 4em;"></p>
         </div>
-        <p style="font-size: 14px; line-height: 1.8; color: #EAEAEA;">
-            {{ ai_fortune.analysis }}
-        </p>
+        <p id="typewriter-analysis" style="font-size: 14px; line-height: 1.8; color: #EAEAEA; min-height: 3em;"></p>
     </div>
 
-    <!-- 2. AI 開運飲食與防焦慮金句 -->
+    <!-- 2. 今日「流時」能量時鐘 -->
+    <div class="card">
+        <h2>今日 24 小時流時能量 (Hourly Dynamics)</h2>
+        <p style="font-size: 12px; color: #A0AAB2; margin: 4px 0 10px 0;">滑動查看各時辰氣場，金色亮起為當前時辰：</p>
+        <div class="timeline-container">
+            {% for hour in hourly_energy %}
+            <div class="timeline-item {% if hour.is_current %}current{% endif %}">
+                <div style="font-weight: bold; font-size: 14px; color: var(--gold-light);">{{ hour.name }}</div>
+                <div style="font-size: 11px; opacity: 0.7;">{{ hour.hours }}</div>
+                <div style="margin-top: 5px; font-weight: 500;" class="tag-{{ hour.tag }}">{{ hour.status }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 3. AI 開運飲食與防焦慮金句 -->
     <div class="card" style="display: flex; gap: 14px; flex-direction: column;">
         <div>
             <h2>🍵 今日能量補給</h2>
@@ -208,7 +295,7 @@
         </div>
     </div>
 
-    <!-- 3. 今日流日動態 -->
+    <!-- 4. 今日流日動態 -->
     <div class="card">
         <h2>今日流日交互氣場 (Daily Dynamics)</h2>
         <p style="color: var(--gold-light); font-size: 14px; line-height: 1.6;">
@@ -216,14 +303,14 @@
         </p>
     </div>
 
-    <!-- 4. 命主核心 -->
+    <!-- 5. 命主核心 -->
     <div class="card">
         <h2>你的命主核心 (Day Master)</h2>
         <h1>{{ day_master | safe }} · {{ day_profile.nature }}</h1>
         <p style="color: var(--gold-light); line-height: 1.6; font-size: 14px;">{{ day_profile.traits }}</p>
     </div>
 
-    <!-- 5. 五行能量加權分佈 -->
+    <!-- 6. 五行先天氣場能量 -->
     <div class="card">
         <h2>五行先天氣場能量（含藏干加權）</h2>
         <div style="margin-top: 15px;">
@@ -244,7 +331,7 @@
         </p>
     </div>
 
-    <!-- 6. 四柱八字排盤 -->
+    <!-- 7. 四柱八字排盤 -->
     <div class="card">
         <h2>四柱命盤解析</h2>
         <div class="bazi-grid">
@@ -255,7 +342,7 @@
         </div>
     </div>
 
-    <!-- 7. 色彩指南與 AI 專屬宜忌 -->
+    <!-- 8. 開運色彩與今日行動清單 -->
     <div class="card">
         <h2>開運色彩指南</h2>
         <p>🎨 核心色系：{{ lucky_colors[0] }}、{{ lucky_colors[1] }}</p>
@@ -276,6 +363,19 @@
             {% endfor %}
         </div>
     </div>
+
+    <!-- 9. 命理大師追問對話框 -->
+    <div class="card">
+        <h2>✦ 命理大師 · 靈犀追問 ✦</h2>
+        <p style="font-size: 13px; color: #A0AAB2; margin-bottom: 10px;">有具體疑惑？向大師追問（如：近期適合轉職嗎？）：</p>
+        <div class="chat-box" id="chatDialogue">
+            <div style="color: var(--gold-light);">大師：若心有疑惑，儘管向我道來。</div>
+        </div>
+        <div class="chat-input-row">
+            <input type="text" id="userQuestion" class="chat-input" placeholder="請輸入想詢問的問題...">
+            <button class="chat-btn" onclick="askQuestion()">追問</button>
+        </div>
+    </div>
 </div>
 
 <div class="btn-group">
@@ -284,6 +384,69 @@
 </div>
 
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const poemText = {{ ai_fortune.poem | tojson }};
+    const analysisText = {{ ai_fortune.analysis | tojson }};
+
+    const poemEl = document.getElementById("typewriter-poem");
+    const analysisEl = document.getElementById("typewriter-analysis");
+    const cursor = document.createElement("span");
+    cursor.className = "typing-cursor";
+
+    function typeWriter(text, targetEl, speed, callback) {
+        let index = 0;
+        targetEl.appendChild(cursor);
+
+        function type() {
+            if (index < text.length) {
+                cursor.insertAdjacentText("beforebegin", text.charAt(index));
+                index++;
+                setTimeout(type, speed);
+            } else {
+                targetEl.removeChild(cursor);
+                if (callback) callback();
+            }
+        }
+        type();
+    }
+
+    typeWriter(poemText, poemEl, 65, () => {
+        typeWriter(analysisText, analysisEl, 25, null);
+    });
+});
+
+const baziSummary = {{ raw_summary | tojson }};
+
+function askQuestion() {
+    const input = document.getElementById("userQuestion");
+    const question = input.value.trim();
+    if (!question) return;
+
+    const chatBox = document.getElementById("chatDialogue");
+    chatBox.innerHTML += `<div style="margin-top: 8px; color: #FFF;">你：${question}</div>`;
+    chatBox.innerHTML += `<div id="loadingIndicator" style="color: var(--gold-primary); font-size: 12px; margin-top: 4px;">大師沉思中...</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+    input.value = "";
+
+    fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ summary: baziSummary, question: question })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const loading = document.getElementById("loadingIndicator");
+        if (loading) loading.remove();
+        chatBox.innerHTML += `<div style="margin-top: 6px; color: var(--gold-light);">大師：${data.reply}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    })
+    .catch(err => {
+        const loading = document.getElementById("loadingIndicator");
+        if (loading) loading.remove();
+        chatBox.innerHTML += `<div style="margin-top: 6px; color: #FC8181;">大師：氣場偶有延遲，請稍後重試。</div>`;
+    });
+}
+
 function downloadCard() {
     const element = document.getElementById('captureArea');
     html2canvas(element, {
