@@ -67,5 +67,62 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
             )
         )
         text = response.text.strip() if getattr(response, "text", None) else ""
-        if "```" in text:
-            text = text.split("
+        fence = chr(96) * 3
+        if fence in text:
+            text = text.split(fence)[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text.strip())
+    except Exception as e:
+        print(f"AI Generation Error: {e}")
+        return {
+            "poem": f"歲月悠悠映日光，{day_master}臨風立世旁。\n莫向浮名爭短長，靜聽松風步自康。",
+            "analysis": f"你的本質帶著{day_master}的堅定，面對「{focus_topic}」若感到停滯，是因為近期思緒偏滿。多調和{useful_element}的從容氣場，給自己留點留白時間。",
+            "good": ["清理掉拖延已久的單項小事", "多喝溫水保持呼吸深長", "給自己安排 15 分鐘放空時間"],
+            "bad": ["在疲憊時做重大承諾", "跟觀念不合的人糾結對錯", "把所有事情都攬在自己身上"],
+            "food_tip": "一杯暖心黑豆水或熱美式",
+            "mantra": "把心收回當下，一切自有其時。"
+        }
+
+def consult_ai_master(bazi_summary, question):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return "大師目前靜思入定中，暫無法連線，請稍後再試。"
+
+    client = genai.Client(api_key=api_key)
+
+    clean_summary = str(bazi_summary).replace("\n", " ").strip()
+    clean_question = str(question).replace("\n", " ").strip()
+
+    prompt = (
+        f"你是精通子平八字的現代生活導師。請根據以下命盤特質，以通俗、溫暖、直截了當的大白話（100字以內）回答求問者的疑惑。\n"
+        f"命盤背景：{clean_summary}\n"
+        f"求問者疑惑：{clean_question}\n"
+        f"回答要求：直接給予生活化判斷與務實建議，切勿出現任何晦澀難懂的八字術語。"
+    )
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-3.6-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.7,
+                max_output_tokens=250
+            )
+        )
+
+        if hasattr(response, "text") and response.text:
+            return response.text.strip()
+
+        if getattr(response, "candidates", None) and response.candidates:
+            cand = response.candidates[0]
+            if cand.content and cand.content.parts:
+                part_text = cand.content.parts[0].text
+                if part_text:
+                    return part_text.strip()
+
+        return "大師推演此時氣場以守為先，眼前專注蓄力，時機自然清晰。"
+
+    except Exception as e:
+        print(f">>> [Render Consult Error]: {type(e).__name__} - {e}")
+        return f"大師推演受阻（{type(e).__name__}），請稍候片刻再行叩問。"
