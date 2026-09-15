@@ -94,17 +94,24 @@ def consult_ai_master(bazi_summary, question):
     clean_summary = str(bazi_summary).replace("\n", " ").strip()
     clean_question = str(question).replace("\n", " ").strip()
 
-    prompt_content = (
-        f"你是精通子平八字與心理諮商的生活命理導師。\n"
-        f"求問者八字背景：{clean_summary}\n"
-        f"求問者當下疑問：{clean_question}\n"
-        f"請以溫和堅定的大白話（100字以內）直接給予生活化的具體策略與判斷，嚴禁使用艱深晦澀的術語。"
-    )
+    prompt_content = f"""你是一位說話精煉、親切、通俗且直擊痛點的現代生活命理導師。
+問命者八字背景為：{clean_summary}
+
+問命者此刻有具體疑惑追問你：
+「{clean_question}」
+
+請給予 100 字以內的大白話指引：
+1. 結合其八字氣質給予直率、務實的判斷或行動策略。
+2. 語氣溫和堅定，切勿使用晦澀術語。"""
 
     try:
         response = client.models.generate_content(
             model="gemini-2.5-flash",
-            contents=prompt_content
+            contents=prompt_content,
+            config=types.GenerateContentConfig(
+                temperature=0.7,
+                max_output_tokens=300
+            )
         )
 
         if hasattr(response, "text") and response.text:
@@ -120,5 +127,6 @@ def consult_ai_master(bazi_summary, question):
         return "大師推演此時氣場以守為先，眼前專注蓄力，時機成熟時自會水到渠成。"
 
     except Exception as e:
-        print(f">>> [Consult Exception Detail]: {type(e).__name__} - {e}")
+        err_msg = f"{type(e).__name__}: {str(e)}"
+        print(f">>> [Consult AFC Error]: {err_msg}")
         return "大師推演此時動靜皆有機緣，把眼前的準備做好，方向自會明朗。"
