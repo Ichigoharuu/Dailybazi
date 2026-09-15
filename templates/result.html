@@ -8,17 +8,53 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
+        /* 1. 預設主題：曜石金黑 (Obsidian Gold) */
         :root {
             --gold-primary: #C5A059;
             --gold-light: #E6C579;
+            --gold-dark: #8C6D28;
             --bg-gradient: linear-gradient(135deg, #050508 0%, #1A1A2E 50%, #0F0C29 100%);
+            --bg-canvas: #050508;
             --card-bg: rgba(12, 12, 18, 0.88);
+            --card-border: #C5A059;
+            --text-primary: #EAEAEA;
+            --text-sub: #A0AAB2;
             --gold-glow: 0 0 15px rgba(197, 160, 89, 0.25);
+            --inner-box-bg: rgba(0, 0, 0, 0.35);
+            --btn-gradient: linear-gradient(135deg, #8C6D28, #C5A059, #E6C579);
+            --btn-text: #050508;
+            --cursor-color: #E6C579;
+            --timeline-bg: rgba(255, 255, 255, 0.03);
+            --timeline-active-bg: rgba(197, 160, 89, 0.15);
+            --timeline-track: rgba(255, 255, 255, 0.05);
+            --timeline-thumb: #C5A059;
+        }
+
+        /* 2. 切換主題：月曜素銀 (Lunar Silver) */
+        [data-theme="silver"] {
+            --gold-primary: #8E9AAF;
+            --gold-light: #E0E1DD;
+            --gold-dark: #4F5D75;
+            --bg-gradient: linear-gradient(135deg, #0D1117 0%, #161B22 50%, #0B0E14 100%);
+            --bg-canvas: #0D1117;
+            --card-bg: rgba(22, 27, 34, 0.88);
+            --card-border: #8E9AAF;
+            --text-primary: #F0F6FC;
+            --text-sub: #8B949E;
+            --gold-glow: 0 0 15px rgba(224, 225, 221, 0.2);
+            --inner-box-bg: rgba(255, 255, 255, 0.04);
+            --btn-gradient: linear-gradient(135deg, #4F5D75, #8E9AAF, #E0E1DD);
+            --btn-text: #0B0E14;
+            --cursor-color: #E0E1DD;
+            --timeline-bg: rgba(255, 255, 255, 0.02);
+            --timeline-active-bg: rgba(224, 225, 221, 0.12);
+            --timeline-track: rgba(255, 255, 255, 0.03);
+            --timeline-thumb: #8E9AAF;
         }
 
         body {
             background: var(--bg-gradient);
-            color: #EAEAEA;
+            color: var(--text-primary);
             font-family: 'Noto Serif TC', serif;
             padding: 30px 15px;
             max-width: 650px;
@@ -26,6 +62,7 @@
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
         }
 
         body::before {
@@ -33,9 +70,9 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: radial-gradient(1.5px 1.5px at 30px 40px, #ffffff, rgba(0,0,0,0)),
-                              radial-gradient(1px 1px at 90px 130px, rgba(197, 160, 89, 0.5), rgba(0,0,0,0));
+                              radial-gradient(1px 1px at 90px 130px, var(--gold-primary), rgba(0,0,0,0));
             background-size: 200px 200px;
-            opacity: 0.3;
+            opacity: 0.25;
             pointer-events: none;
             z-index: 0;
         }
@@ -45,9 +82,35 @@
             z-index: 10;
         }
 
+        /* 主題切換按鈕 */
+        .theme-switch-btn {
+            position: absolute;
+            top: -10px;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-light);
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Noto Serif TC', serif;
+            box-shadow: var(--gold-glow);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-switch-btn:hover {
+            transform: translateY(-1px);
+            border-color: var(--gold-light);
+        }
+
         header {
             text-align: center;
             margin-bottom: 25px;
+            position: relative;
         }
 
         header h1 {
@@ -67,13 +130,14 @@
 
         .card {
             background: var(--card-bg);
-            border: 1px solid var(--gold-primary);
+            border: 1px solid var(--card-border);
             border-radius: 4px;
             padding: 22px;
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.6), var(--gold-glow);
             backdrop-filter: blur(10px);
             position: relative;
+            transition: all 0.4s ease;
         }
 
         .card h1 {
@@ -108,7 +172,7 @@
         }
 
         .bazi-item {
-            background: rgba(5, 5, 8, 0.6);
+            background: var(--inner-box-bg);
             padding: 12px;
             border-radius: 2px;
             border: 1px solid rgba(197, 160, 89, 0.3);
@@ -137,7 +201,7 @@
         }
 
         .energy-fill {
-            background: linear-gradient(90deg, #8C6D28, var(--gold-light));
+            background: var(--btn-gradient);
             height: 100%;
         }
 
@@ -145,7 +209,7 @@
             display: inline-block;
             width: 2px;
             height: 1.1em;
-            background-color: var(--gold-light);
+            background-color: var(--cursor-color);
             margin-left: 3px;
             vertical-align: middle;
             animation: blink 0.8s infinite;
@@ -156,7 +220,6 @@
             51%, 100% { opacity: 0; }
         }
 
-        /* 橫向單列：優雅黑金滑動條 */
         .timeline-container {
             display: flex;
             gap: 12px;
@@ -170,12 +233,12 @@
         }
 
         .timeline-container::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--timeline-track);
             border-radius: 3px;
         }
 
         .timeline-container::-webkit-scrollbar-thumb {
-            background: var(--gold-primary);
+            background: var(--timeline-thumb);
             border-radius: 3px;
         }
 
@@ -183,7 +246,7 @@
             min-width: 105px;
             padding: 12px 10px;
             border-radius: 3px;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--timeline-bg);
             border: 1px solid rgba(197, 160, 89, 0.2);
             text-align: center;
             font-size: 12px;
@@ -193,8 +256,8 @@
 
         .timeline-item.current {
             border: 1.5px solid var(--gold-light);
-            background: rgba(197, 160, 89, 0.15);
-            box-shadow: 0 0 12px rgba(197, 160, 89, 0.3);
+            background: var(--timeline-active-bg);
+            box-shadow: var(--gold-glow);
             transform: translateY(-2px);
         }
 
@@ -203,7 +266,7 @@
         .tag-neutral { color: #CBD5E0; }
 
         .chat-box {
-            background: rgba(5, 5, 8, 0.7);
+            background: var(--inner-box-bg);
             border: 1px solid rgba(197, 160, 89, 0.3);
             border-radius: 4px;
             padding: 12px;
@@ -222,18 +285,18 @@
         .chat-input {
             flex: 1;
             padding: 10px;
-            background: rgba(5, 5, 8, 0.9);
+            background: var(--inner-box-bg);
             border: 1px solid var(--gold-primary);
-            color: #EAEAEA;
+            color: var(--text-primary);
             font-family: inherit;
             border-radius: 2px;
             outline: none;
         }
 
         .chat-btn {
-            background: linear-gradient(135deg, #8C6D28, #C5A059);
+            background: var(--btn-gradient);
             border: none;
-            color: #050508;
+            color: var(--btn-text);
             padding: 0 16px;
             font-weight: bold;
             cursor: pointer;
@@ -249,8 +312,8 @@
         .btn {
             flex: 1;
             text-align: center;
-            background: linear-gradient(135deg, #8C6D28, #C5A059, #E6C579);
-            color: #050508;
+            background: var(--btn-gradient);
+            color: var(--btn-text);
             border: none;
             padding: 14px;
             border-radius: 2px;
@@ -258,7 +321,7 @@
             font-weight: bold;
             letter-spacing: 2px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             transition: opacity 0.2s;
         }
 
@@ -272,25 +335,30 @@
 
 <div class="container" id="captureArea">
     <header>
+        <button class="theme-switch-btn" onclick="toggleTheme()">
+            <span id="themeIcon">✦</span>
+            <span id="themeLabel">月曜素銀</span>
+        </button>
+
         <h1>✦ 八字星象導航 ✦</h1>
         <div class="header-sub">
-            今日流日：{{ today_stream.day_ganzhi }} · 問策重心：{{ focus_topic }}
+            今日流日：{{ today_stream.day_ganzhi }} · 問策重心：{{ focus_topic }}[cite: 1]
         </div>
     </header>
 
     <!-- 1. AI 靈犀批命（打字機效果） -->
-    <div class="card" style="border: 1px solid var(--gold-light); background: linear-gradient(135deg, rgba(20, 15, 30, 0.95), rgba(10, 10, 15, 0.95));">
+    <div class="card">
         <h2>✦ 靈犀批命 · 心態指引 ✦</h2>
-        <div style="text-align: center; margin: 15px 0; padding: 14px; border-left: 2px solid var(--gold-primary); border-right: 2px solid var(--gold-primary); background: rgba(0, 0, 0, 0.35);">
+        <div style="text-align: center; margin: 15px 0; padding: 14px; border-left: 2px solid var(--gold-primary); border-right: 2px solid var(--gold-primary); background: var(--inner-box-bg);">
             <p id="typewriter-poem" style="font-size: 16px; color: var(--gold-light); letter-spacing: 2.5px; font-weight: bold; margin: 0; line-height: 1.8; white-space: pre-line; min-height: 4em;"></p>
         </div>
-        <p id="typewriter-analysis" style="font-size: 14px; line-height: 1.8; color: #EAEAEA; min-height: 3em;"></p>
+        <p id="typewriter-analysis" style="font-size: 14px; line-height: 1.8; color: var(--text-primary); min-height: 3em;"></p>
     </div>
 
     <!-- 2. 今日「流時」能量時鐘 -->
     <div class="card">
         <h2>今日 24 小時流時能量 (Hourly Dynamics)</h2>
-        <p style="font-size: 12px; color: #A0AAB2; margin: 4px 0 10px 0;">左右滑動查看 12 時辰氣場，金色亮起為當前時辰：</p>
+        <p style="font-size: 12px; color: var(--text-sub); margin: 4px 0 10px 0;">左右滑動查看 12 時辰氣場，高亮處為當前時辰：</p>
         <div class="timeline-container">
             {% for hour in hourly_energy %}
             <div class="timeline-item {% if hour.is_current %}current{% endif %}">
@@ -312,7 +380,7 @@
         </div>
         <div style="border-top: 1px dashed rgba(197, 160, 89, 0.2); padding-top: 10px;">
             <h2>🧘 一秒防焦慮咒語</h2>
-            <p style="color: #FFFFFF; font-style: italic; font-size: 15px; margin-top: 6px;">
+            <p style="color: var(--text-primary); font-style: italic; font-size: 15px; margin-top: 6px;">
                 「 {{ ai_fortune.mantra }} 」
             </p>
         </div>
@@ -322,7 +390,7 @@
     <div class="card">
         <h2>今日流日交互氣場 (Daily Dynamics)</h2>
         <p style="color: var(--gold-light); font-size: 14px; line-height: 1.6;">
-            ✦ {{ stream_notice }}
+            ✦ {{ stream_notice }}[cite: 1]
         </p>
     </div>
 
@@ -349,7 +417,7 @@
             </div>
             {% endfor %}
         </div>
-        <p style="font-size: 13px; color: #A0AAB2; margin-top: 12px; border-top: 1px solid rgba(197, 160, 89, 0.15); padding-top: 8px;">
+        <p style="font-size: 13px; color: var(--text-sub); margin-top: 12px; border-top: 1px solid rgba(197, 160, 89, 0.15); padding-top: 8px;">
             ✦ 命中偏弱元素為：<strong style="color: var(--gold-light);">{{ useful_element }}</strong>，建議以此作為調和重心。
         </p>
     </div>
@@ -390,7 +458,7 @@
     <!-- 9. 命理大師追問對話框 -->
     <div class="card">
         <h2>✦ 命理大師 · 靈犀追問 ✦</h2>
-        <p style="font-size: 13px; color: #A0AAB2; margin-bottom: 10px;">有具體疑惑？向大師追問（如：近期適合轉職嗎？）：</p>
+        <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 10px;">有具體疑惑？向大師追問：</p>
         <div class="chat-box" id="chatDialogue">
             <div style="color: var(--gold-light);">大師：若心有疑惑，儘管向我道來。</div>
         </div>
@@ -407,8 +475,35 @@
 </div>
 
 <script>
-// 打字機動畫
+// 主題切換邏輯
+function applyTheme(theme) {
+    const root = document.documentElement;
+    const label = document.getElementById("themeLabel");
+    const icon = document.getElementById("themeIcon");
+
+    if (theme === "silver") {
+        root.setAttribute("data-theme", "silver");
+        label.textContent = "曜石金黑";
+        icon.textContent = "🌙";
+    } else {
+        root.removeAttribute("data-theme");
+        label.textContent = "月曜素銀";
+        icon.textContent = "✦";
+    }
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const nextTheme = currentTheme === "silver" ? "gold" : "silver";
+    localStorage.setItem("bazi_theme", nextTheme);
+    applyTheme(nextTheme);
+}
+
+// 初始化主題與打字機動畫
 document.addEventListener("DOMContentLoaded", () => {
+    const savedTheme = localStorage.getItem("bazi_theme") || "gold";
+    applyTheme(savedTheme);
+
     const poemText = {{ ai_fortune.poem | tojson }};
     const analysisText = {{ ai_fortune.analysis | tojson }};
 
@@ -438,7 +533,6 @@ document.addEventListener("DOMContentLoaded", () => {
         typeWriter(analysisText, analysisEl, 25, null);
     });
 
-    // 自動居中滾動到當前時辰
     const currentItem = document.querySelector(".timeline-item.current");
     if (currentItem) {
         currentItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -454,7 +548,7 @@ function askQuestion() {
     if (!question) return;
 
     const chatBox = document.getElementById("chatDialogue");
-    chatBox.innerHTML += `<div style="margin-top: 8px; color: #FFF;">你：${question}</div>`;
+    chatBox.innerHTML += `<div style="margin-top: 8px; color: var(--text-primary);">你：${question}</div>`;
     chatBox.innerHTML += `<div id="loadingIndicator" style="color: var(--gold-primary); font-size: 12px; margin-top: 4px;">大師沉思中...</div>`;
     chatBox.scrollTop = chatBox.scrollHeight;
     input.value = "";
@@ -478,15 +572,17 @@ function askQuestion() {
     });
 }
 
-// 一鍵導出黑金籤卡
+// 一鍵導出黑金/素銀籤卡
 function downloadCard() {
     const element = document.getElementById('captureArea');
+    const isSilver = document.documentElement.getAttribute("data-theme") === "silver";
+    
     html2canvas(element, {
-        backgroundColor: '#050508',
+        backgroundColor: isSilver ? '#0D1117' : '#050508',
         scale: 2
     }).then(canvas => {
         const link = document.createElement('a');
-        link.download = 'bazi_fortune_card.png';
+        link.download = isSilver ? 'bazi_silver_card.png' : 'bazi_fortune_card.png';
         link.href = canvas.toDataURL();
         link.click();
     });
