@@ -1,6 +1,7 @@
 import os
 import json
 import random
+import re
 from google import genai
 from google.genai import types
 
@@ -12,31 +13,28 @@ RANDOM_PERSPECTIVES = [
     "清泉繞石、隨順變通之智慧"
 ]
 
-def _extract_text_safely(response):
-    """多層防禦抽取模型回傳字串，防止 NoneType 與封裝結構解析失靈"""
+def _extract_text(response):
+    """防禦性安全抽取文字"""
     if not response:
         return None
-
-    # 1. 優先取標準 text 屬性
     try:
-        if hasattr(response, "text") and response.text:
+        if getattr(response, "text", None):
             cleaned = str(response.text).strip()
             if cleaned:
                 return cleaned
     except Exception:
         pass
 
-    # 2. 深入 candidates 結構解析
     try:
         if getattr(response, "candidates", None) and response.candidates:
-            parts = response.candidates[0].content.parts
-            text_parts = [getattr(p, "text", "") for p in parts if getattr(p, "text", None)]
-            full_text = "".join(text_parts).strip()
-            if full_text:
-                return full_text
+            cand = response.candidates[0]
+            if cand.content and cand.content.parts:
+                texts = [str(p.text) for p in cand.content.parts if getattr(p, "text", None)]
+                combined = "".join(texts).strip()
+                if combined:
+                    return combined
     except Exception:
         pass
-
     return None
 
 def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, focus_topic="事業發展與決策突破"):
@@ -56,8 +54,8 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
     perspective = random.choice(RANDOM_PERSPECTIVES)
 
     system_instruction = (
-        "你是一位說話親切、通俗易懂、像好朋友一樣溫暖且有智慧的現代生活命理導師。"
-        "嚴格禁止使用「土多金埋」、「日元旺衰」、「比劫剋財」等術語，請完全轉化為生活化大白話。"
+        "你是一位說話親切、通俗易懂的現代生活命理導師。"
+        "嚴禁出現生硬術語（如「土多金埋」、「日元旺衰」等），完全轉化為生活化大白話。"
     )
 
     prompt = f"""【命主排盤特質】
@@ -68,22 +66,22 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
 - 當前問命重心：{focus_topic}
 - 本次意象引導：{perspective}
 
-請生成以下 6 項內容（語氣務必通俗、現代、溫暖）：
-1. poem: 一首四句短詩（每句字數相仿，通俗鼓舞，不要深奧古文）。
-2. analysis: 針對「{focus_topic}」的深度白話解盤（120字以內）。用生活比喻點出他目前的狀態，並給出 1~2 個今天就能照著做的心態或行動建議。
-3. good: 3 個今天最適合做的白話具體小行動（陣列格式）。
-4. bad: 3 個今天最容易踩雷或內耗的行為（陣列格式）。
-5. food_tip: 一款符合補充「{useful_element}」能量的日常飲料或餐點。
-6. mantra: 一句 15 字以內、能讓人瞬間放下焦慮的心態安撫金句。
+請生成以下 6 項內容（JSON 格式）：
+1. poem: 一首四句短詩（每句字數相仿，白話鼓舞）。
+2. analysis: 針對「{focus_topic}」的白話解盤（120字以內）。
+3. good: 3 個今天最適合做的白話具體小行動（字串陣列）。
+4. bad: 3 個今天最容易踩雷的行為（字串陣列）。
+5. food_tip: 一款補「{useful_element}」能量的日常飲品或餐點。
+6. mantra: 一句 15 字以內安撫焦慮的金句。
 
-請嚴格按照以下 JSON 格式回傳：
+回傳 JSON 格式如下：
 {{
-  "poem": "四句詩（以換行符號 \\n 連接）",
-  "analysis": "大白話分析與行動建議",
-  "good": ["宜行動一", "宜行動二", "宜行動三"],
-  "bad": ["宜避行為一", "宜避行為二", "宜避行為三"],
-  "food_tip": "日常飲品或餐點",
-  "mantra": "一句話心態金句"
+  "poem": "四句詩",
+  "analysis": "白話分析",
+  "good": ["宜1", "宜2", "宜3"],
+  "bad": ["忌1", "忌2", "忌3"],
+  "food_tip": "飲食推薦",
+  "mantra": "金句"
 }}"""
 
     try:
@@ -96,23 +94,21 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
                 response_mime_type="application/json"
             )
         )
-        
-        raw_text = _extract_text_safely(response) or ""
+        raw_text = _extract_text(response) or ""
         fence = chr(96) * 3
         if fence in raw_text:
             raw_text = raw_text.split(fence)[1]
             if raw_text.startswith("json"):
                 raw_text = raw_text[4:]
-
         return json.loads(raw_text.strip())
     except Exception as e:
-        print(f">>> [AI Fortune Error]: {type(e).__name__} - {e}")
+        print(f">>> [AI Fortune Error]: {e}")
         return {
             "poem": f"歲月悠悠映日光，{day_master}臨風立世旁。\n莫向浮名爭短長，靜聽松風步自康。",
-            "analysis": f"你的本質帶著{day_master}的堅定，面對「{focus_topic}」若感到停滯，是因為近期思緒偏滿。多調和{useful_element}的從容氣場，給自己留點留白時間。",
-            "good": ["清理掉拖延已久的單項小事", "多喝溫水保持呼吸深長", "給自己安排 15 分鐘放空時間"],
-            "bad": ["在疲憊時做重大承諾", "跟觀念不合的人糾結對錯", "把所有事情都攬在自己身上"],
-            "food_tip": "一杯暖心黑豆水或熱美式",
+            "analysis": f"你的本質帶著{day_master}的堅定，多調和{useful_element}的從容氣場，把節奏放慢下來。",
+            "good": ["清理掉拖延已久的小事", "多喝溫水保持深呼吸", "給自己安排放空時間"],
+            "bad": ["在疲憊時做承諾", "跟人糾結對錯", "把所有事情攬在身上"],
+            "food_tip": "一杯溫熱無糖茶飲",
             "mantra": "把心收回當下，一切自有其時。"
         }
 
@@ -123,35 +119,43 @@ def consult_ai_master(bazi_summary, question):
 
     client = genai.Client(api_key=api_key)
 
-    clean_summary = str(bazi_summary).replace("\n", " ").strip()
-    clean_question = str(question).replace("\n", " ").strip()
+    # 1. 嚴格過濾清洗前端輸入，消除特殊標點與引號污染
+    clean_summary = re.sub(r'[\r\n\t\'"]+', ' ', str(bazi_summary)).strip()
+    clean_question = re.sub(r'[\r\n\t\'"]+', ' ', str(question)).strip()
 
-    system_instruction = (
-        "你是一位精通子平八字與現代生活心理諮商的命理導師。"
-        "回答語氣溫和、篤定、直截了當且完全通俗。"
-        "嚴格禁止使用生僻術語，字數必須控制在 100 字以內，針對求問者的問題給出務實的行動策略。"
+    # 2. 注入生活心理諮商框架，避免模型因確定性預言判定而拒答
+    engineered_prompt = (
+        "【系統角色】你是一位通曉傳統八字哲學、擅長心理陪伴的現代生活導師。\n"
+        "【情境說明】問命者在進行日常哲理探討與心態梳理，請從性格優勢、時機心態與行動策略給予溫暖指引，絕非迷信斷言。\n"
+        f"【問命者特質】{clean_summary}\n"
+        f"【問命者困惑】「{clean_question}」\n\n"
+        "【回答規範】\n"
+        "1. 必須在 90 字以內，直截了當給出務實、鼓舞人心的行動心態建議。\n"
+        "2. 嚴格禁止使用任何生僻術語（如正財、偏官、合化等），全程使用生活大白話。\n"
+        "3. 語氣溫暖篤定，像一位洞察世事的朋友在給予方向。"
     )
-
-    user_query = f"【命主八字背景】{clean_summary}\n【求問疑惑】{clean_question}"
 
     try:
         response = client.models.generate_content(
             model="gemini-2.5-flash",
-            contents=user_query,
+            contents=engineered_prompt,
             config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                temperature=0.7,
-                max_output_tokens=300
+                temperature=0.8,
+                max_output_tokens=250
             )
         )
 
-        extracted = _extract_text_safely(response)
-        if extracted:
-            return extracted
+        reply = _extract_text(response)
+        if reply:
+            return reply
 
-        print(">>> [Consult Warning]: Model returned empty content.")
-        return "大師推演此時氣場以守為先，眼前專注蓄力，時機成熟時自會水到渠成。"
+        # 如果模型回傳結構有 candidate 但 text 為空，抓出原因印在 Log
+        if getattr(response, "candidates", None) and response.candidates:
+            reason = getattr(response.candidates[0], "finish_reason", "UNKNOWN")
+            print(f">>> [Model Finish Reason]: {reason}")
+
+        return "以你命盤的韌性而言，此事動靜皆在人為。先將手頭積累做足，順勢而為自會明朗。"
 
     except Exception as e:
-        print(f">>> [Consult Exception Detail]: {type(e).__name__} - {e}")
+        print(f">>> [Consult Fatal Error]: {type(e).__name__} - {e}")
         return "大師推演此時動靜皆有機緣，把眼前的準備做好，方向自會明朗。"
