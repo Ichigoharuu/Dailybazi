@@ -59,7 +59,7 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
 
     try:
         response = client.models.generate_content(
-            model="gemini-3.6-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
                 temperature=0.9,
@@ -74,7 +74,7 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
                 text = text[4:]
         return json.loads(text.strip())
     except Exception as e:
-        print(f"AI Generation Error: {e}")
+        print(f"AI Fortune Error: {e}")
         return {
             "poem": f"歲月悠悠映日光，{day_master}臨風立世旁。\n莫向浮名爭短長，靜聽松風步自康。",
             "analysis": f"你的本質帶著{day_master}的堅定，面對「{focus_topic}」若感到停滯，是因為近期思緒偏滿。多調和{useful_element}的從容氣場，給自己留點留白時間。",
@@ -94,21 +94,17 @@ def consult_ai_master(bazi_summary, question):
     clean_summary = str(bazi_summary).replace("\n", " ").strip()
     clean_question = str(question).replace("\n", " ").strip()
 
-    prompt = (
-        f"你是精通子平八字的現代生活導師。請根據以下命盤特質，以通俗、溫暖、直截了當的大白話（100字以內）回答求問者的疑惑。\n"
-        f"命盤背景：{clean_summary}\n"
-        f"求問者疑惑：{clean_question}\n"
-        f"回答要求：直接給予生活化判斷與務實建議，切勿出現任何晦澀難懂的八字術語。"
+    prompt_content = (
+        f"你是精通子平八字與心理諮商的生活命理導師。\n"
+        f"求問者八字背景：{clean_summary}\n"
+        f"求問者當下疑問：{clean_question}\n"
+        f"請以溫和堅定的大白話（100字以內）直接給予生活化的具體策略與判斷，嚴禁使用艱深晦澀的術語。"
     )
 
     try:
         response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=0.7,
-                max_output_tokens=250
-            )
+            model="gemini-2.5-flash",
+            contents=prompt_content
         )
 
         if hasattr(response, "text") and response.text:
@@ -121,8 +117,8 @@ def consult_ai_master(bazi_summary, question):
                 if part_text:
                     return part_text.strip()
 
-        return "大師推演此時氣場以守為先，眼前專注蓄力，時機自然清晰。"
+        return "大師推演此時氣場以守為先，眼前專注蓄力，時機成熟時自會水到渠成。"
 
     except Exception as e:
-        print(f">>> [Render Consult Error]: {type(e).__name__} - {e}")
-        return f"大師推演受阻（{type(e).__name__}），請稍候片刻再行叩問。"
+        print(f">>> [Consult Exception Detail]: {type(e).__name__} - {e}")
+        return "大師推演此時動靜皆有機緣，把眼前的準備做好，方向自會明朗。"
