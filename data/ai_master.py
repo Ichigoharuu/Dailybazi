@@ -28,8 +28,7 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
     dist_str = ", ".join([f"{item['name']}: {item['percent']}%" for item in distribution])
     perspective = random.choice(RANDOM_PERSPECTIVES)
 
-    prompt = f"""
-你是一位說話親切、通俗易懂、像好朋友一樣溫暖且有智慧的現代生活命理導師。
+    prompt = f"""你是一位說話親切、通俗易懂、像好朋友一樣溫暖且有智慧的現代生活命理導師。
 請拋棄一切晦澀生硬的術語（嚴格禁止出現「土多金埋」、「日元旺衰」、「比劫剋財」等），轉化為通俗的大白話和生活化比喻。
 
 【命主排盤特質】
@@ -56,8 +55,7 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
   "bad": ["宜避行為一", "宜避行為二", "宜避行為三"],
   "food_tip": "日常飲品或餐點",
   "mantra": "一句話心態金句"
-}}
-"""
+}}"""
 
     try:
         response = client.models.generate_content(
@@ -68,7 +66,7 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
                 response_mime_type="application/json"
             )
         )
-        text = response.text.strip()
+        text = response.text.strip() if getattr(response, "text", None) else ""
         if "```" in text:
             text = text.split("```")[1]
             if text.startswith("json"):
@@ -91,8 +89,7 @@ def consult_ai_master(bazi_summary, question):
         return "大師目前靜思入定中，暫無法連線，請稍後再試。"
 
     client = genai.Client(api_key=api_key)
-    prompt = f"""
-你是一位說話精煉、親切、通俗且直擊痛點的現代生活命理導師。
+    prompt = f"""你是一位說話精煉、親切、通俗且直擊痛點的現代生活命理導師。
 問命者八字背景為：{bazi_summary}
 
 問命者此刻有具體疑惑追問你：
@@ -100,15 +97,26 @@ def consult_ai_master(bazi_summary, question):
 
 請給予 100 字以內的大白話指引：
 1. 結合其八字氣質給予直率、務實的判斷或行動策略。
-2. 語氣溫和堅定，切勿使用晦澀術語。
-"""
+2. 語氣溫和堅定，切勿使用晦澀術語。"""
+
     try:
         response = client.models.generate_content(
             model="gemini-3.6-flash",
             contents=prompt,
             config=types.GenerateContentConfig(temperature=0.7)
         )
-        return response.text.strip()
+        
+        reply_text = getattr(response, "text", None)
+        if reply_text:
+            return reply_text.strip()
+        
+        if getattr(response, "candidates", None) and response.candidates[0].content.parts:
+            part = response.candidates[0].content.parts[0]
+            if hasattr(part, "text") and part.text:
+                return part.text.strip()
+
+        return "大師感受到了你的氣場，但天機微渺，此時建議先做好手頭準備，靜候良機。"
+        
     except Exception as e:
-        print(f"Consult Error: {e}")
-        return "氣場暫有微瀾，大師建議你此刻深呼吸三次，依循本心決定即可。"
+        print(f"Consult Error: {type(e).__name__} - {e}")
+        return "大師思緒稍有阻隔，請換個方式再問一次。"
