@@ -12,6 +12,33 @@ RANDOM_PERSPECTIVES = [
     "清泉繞石、隨順變通之智慧"
 ]
 
+def _extract_text_safely(response):
+    """多層防禦抽取模型回傳字串，防止 NoneType 與封裝結構解析失靈"""
+    if not response:
+        return None
+
+    # 1. 優先取標準 text 屬性
+    try:
+        if hasattr(response, "text") and response.text:
+            cleaned = str(response.text).strip()
+            if cleaned:
+                return cleaned
+    except Exception:
+        pass
+
+    # 2. 深入 candidates 結構解析
+    try:
+        if getattr(response, "candidates", None) and response.candidates:
+            parts = response.candidates[0].content.parts
+            text_parts = [getattr(p, "text", "") for p in parts if getattr(p, "text", None)]
+            full_text = "".join(text_parts).strip()
+            if full_text:
+                return full_text
+    except Exception:
+        pass
+
+    return None
+
 def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, focus_topic="事業發展與決策突破"):
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
@@ -28,10 +55,12 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
     dist_str = ", ".join([f"{item['name']}: {item['percent']}%" for item in distribution])
     perspective = random.choice(RANDOM_PERSPECTIVES)
 
-    prompt = f"""你是一位說話親切、通俗易懂、像好朋友一樣溫暖且有智慧的現代生活命理導師。
-請拋棄一切晦澀生硬的術語（嚴格禁止出現「土多金埋」、「日元旺衰」、「比劫剋財」等），轉化為通俗的大白話和生活化比喻。
+    system_instruction = (
+        "你是一位說話親切、通俗易懂、像好朋友一樣溫暖且有智慧的現代生活命理導師。"
+        "嚴格禁止使用「土多金埋」、「日元旺衰」、「比劫剋財」等術語，請完全轉化為生活化大白話。"
+    )
 
-【命主排盤特質】
+    prompt = f"""【命主排盤特質】
 - 四柱八字：[{bazi['year']} {bazi['month']} {bazi['day']} {bazi['hour']}]
 - 本命性格：{day_master}（{day_profile.get('nature', '')}），特質：{day_profile.get('traits', '')}
 - 先天五行氣場分佈：{dist_str}
@@ -47,7 +76,7 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
 5. food_tip: 一款符合補充「{useful_element}」能量的日常飲料或餐點。
 6. mantra: 一句 15 字以內、能讓人瞬間放下焦慮的心態安撫金句。
 
-請嚴格按照以下 JSON 格式回傳，不得加入額外文字或 markdown 標記：
+請嚴格按照以下 JSON 格式回傳：
 {{
   "poem": "四句詩（以換行符號 \\n 連接）",
   "analysis": "大白話分析與行動建議",
@@ -62,19 +91,22 @@ def get_ai_fortune(bazi, day_master, day_profile, distribution, useful_element, 
             model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
                 temperature=0.9,
                 response_mime_type="application/json"
             )
         )
-        text = response.text.strip() if getattr(response, "text", None) else ""
+        
+        raw_text = _extract_text_safely(response) or ""
         fence = chr(96) * 3
-        if fence in text:
-            text = text.split(fence)[1]
-            if text.startswith("json"):
-                text = text[4:]
-        return json.loads(text.strip())
+        if fence in raw_text:
+            raw_text = raw_text.split(fence)[1]
+            if raw_text.startswith("json"):
+                raw_text = raw_text[4:]
+
+        return json.loads(raw_text.strip())
     except Exception as e:
-        print(f"AI Fortune Error: {e}")
+        print(f">>> [AI Fortune Error]: {type(e).__name__} - {e}")
         return {
             "poem": f"歲月悠悠映日光，{day_master}臨風立世旁。\n莫向浮名爭短長，靜聽松風步自康。",
             "analysis": f"你的本質帶著{day_master}的堅定，面對「{focus_topic}」若感到停滯，是因為近期思緒偏滿。多調和{useful_element}的從容氣場，給自己留點留白時間。",
@@ -95,30 +127,31 @@ def consult_ai_master(bazi_summary, question):
     clean_question = str(question).replace("\n", " ").strip()
 
     system_instruction = (
-        "你是一位精通子平八字與現代生活心理的生活命理導師。"
-        "你的說話風格溫暖、篤定、直擊痛點且完全通俗。"
-        "回答時必須直接給予生活化的具體判斷與行動建議，字數控制在 100 字以內，嚴禁使用晦澀難懂的八字術語。"
+        "你是一位精通子平八字與現代生活心理諮商的命理導師。"
+        "回答語氣溫和、篤定、直截了當且完全通俗。"
+        "嚴格禁止使用生僻術語，字數必須控制在 100 字以內，針對求問者的問題給出務實的行動策略。"
     )
 
-    user_message = f"【問命者八字背景】{clean_summary}\n【問命者當前疑惑】{clean_question}"
+    user_query = f"【命主八字背景】{clean_summary}\n【求問疑惑】{clean_question}"
 
     try:
-        chat = client.chats.create(
+        response = client.models.generate_content(
             model="gemini-2.5-flash",
+            contents=user_query,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 temperature=0.7,
                 max_output_tokens=300
             )
         )
-        response = chat.send_message(user_message)
 
-        if hasattr(response, "text") and response.text:
-            return response.text.strip()
+        extracted = _extract_text_safely(response)
+        if extracted:
+            return extracted
 
+        print(">>> [Consult Warning]: Model returned empty content.")
         return "大師推演此時氣場以守為先，眼前專注蓄力，時機成熟時自會水到渠成。"
 
     except Exception as e:
-        err_msg = f"{type(e).__name__}: {str(e)}"
-        print(f">>> [Chat API Error]: {err_msg}")
+        print(f">>> [Consult Exception Detail]: {type(e).__name__} - {e}")
         return "大師推演此時動靜皆有機緣，把眼前的準備做好，方向自會明朗。"
