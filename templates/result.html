@@ -2,198 +2,236 @@
 <html lang="zh-Hant">
 
 <head>
-<meta charset="utf-8">
-<title>八字星象排盤結果</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-<style>
-:root {
-    --gold-primary: #C5A059; 
-    --gold-light: #E6C579;
-    --bg-gradient: linear-gradient(135deg, #050508 0%, #1A1A2E 50%, #0F0C29 100%);
-    --card-bg: rgba(12, 12, 18, 0.88);
-    --gold-glow: 0 0 15px rgba(197, 160, 89, 0.25);
-}
+    <meta charset="utf-8">
+    <title>八字星象導航 · 測算結果</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-body{
-    background: var(--bg-gradient);
-    color: #EAEAEA;
-    font-family: 'Noto Serif TC', serif;
-    padding: 40px 20px;
-    max-width: 650px;
-    margin: 0 auto;
-    min-height: 100vh;
-    position: relative;
-    overflow-x: hidden;
-}
+    <style>
+        :root {
+            --gold-primary: #C5A059;
+            --gold-light: #E6C579;
+            --bg-gradient: linear-gradient(135deg, #050508 0%, #1A1A2E 50%, #0F0C29 100%);
+            --card-bg: rgba(12, 12, 18, 0.88);
+            --gold-glow: 0 0 15px rgba(197, 160, 89, 0.25);
+        }
 
-body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-image: radial-gradient(1.5px 1.5px at 30px 40px, #ffffff, rgba(0,0,0,0)),
-                      radial-gradient(1px 1px at 90px 130px, rgba(197, 160, 89, 0.5), rgba(0,0,0,0));
-    background-size: 200px 200px;
-    opacity: 0.3;
-    pointer-events: none;
-    z-index: 0;
-}
+        body {
+            background: var(--bg-gradient);
+            color: #EAEAEA;
+            font-family: 'Noto Serif TC', serif;
+            padding: 30px 15px;
+            max-width: 650px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-.container {
-    position: relative;
-    z-index: 10;
-}
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(1.5px 1.5px at 30px 40px, #ffffff, rgba(0,0,0,0)),
+                              radial-gradient(1px 1px at 90px 130px, rgba(197, 160, 89, 0.5), rgba(0,0,0,0));
+            background-size: 200px 200px;
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
+        .container {
+            position: relative;
+            z-index: 10;
+        }
 
-header h1 {
-    color: var(--gold-light);
-    font-size: 30px;
-    text-shadow: var(--gold-glow);
-    letter-spacing: 3px;
-    margin: 0;
-}
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
 
-.card{
-    background: var(--card-bg);
-    border: 1px solid var(--gold-primary);
-    border-radius: 4px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6), var(--gold-glow);
-    backdrop-filter: blur(10px);
-    position: relative;
-}
+        header h1 {
+            color: var(--gold-light);
+            font-size: 28px;
+            text-shadow: var(--gold-glow);
+            letter-spacing: 3px;
+            margin: 0;
+        }
 
-.theme{
-    background: linear-gradient(135deg, rgba(12, 12, 18, 0.95), rgba(40, 30, 70, 0.95));
-    border-color: var(--gold-light);
-}
+        .header-sub {
+            font-size: 13px;
+            color: var(--gold-light);
+            margin-top: 8px;
+            letter-spacing: 2px;
+        }
 
-.card h1{
-    color: var(--gold-light);
-    font-size: 26px;
-    margin: 8px 0 0 0;
-    text-shadow: var(--gold-glow);
-    letter-spacing: 2px;
-}
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--gold-primary);
+            border-radius: 4px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), var(--gold-glow);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
 
-.card h2{
-    font-size: 13px;
-    color: var(--gold-primary);
-    margin: 0;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border-bottom: 1px solid rgba(197, 160, 89, 0.2);
-    padding-bottom: 6px;
-}
+        .card h1 {
+            color: var(--gold-light);
+            font-size: 24px;
+            margin: 8px 0 0 0;
+            text-shadow: var(--gold-glow);
+            letter-spacing: 2px;
+        }
 
-p{
-    margin: 12px 0 0 0;
-    font-size: 16px;
-    letter-spacing: 1px;
-}
+        .card h2 {
+            font-size: 13px;
+            color: var(--gold-primary);
+            margin: 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+            padding-bottom: 6px;
+        }
 
-.bazi-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin-top: 15px;
-}
+        p {
+            margin: 10px 0 0 0;
+            font-size: 15px;
+            letter-spacing: 1px;
+        }
 
-.bazi-item {
-    background: rgba(5, 5, 8, 0.6);
-    padding: 14px;
-    border-radius: 2px;
-    border: 1px solid rgba(197, 160, 89, 0.3);
-    font-size: 18px;
-    text-align: center;
-    letter-spacing: 2px;
-}
+        .bazi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
 
-.energy-row {
-    margin-bottom: 14px;
-}
+        .bazi-item {
+            background: rgba(5, 5, 8, 0.6);
+            padding: 12px;
+            border-radius: 2px;
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            font-size: 17px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
 
-.energy-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    margin-bottom: 6px;
-}
+        .energy-row {
+            margin-bottom: 12px;
+        }
 
-.energy-track {
-    background: rgba(255, 255, 255, 0.08);
-    height: 9px;
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid rgba(197, 160, 89, 0.2);
-}
+        .energy-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
 
-.energy-fill {
-    background: linear-gradient(90deg, #8C6D28, var(--gold-light));
-    height: 100%;
-    transition: width 0.6s ease-in-out;
-}
+        .energy-track {
+            background: rgba(255, 255, 255, 0.08);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(197, 160, 89, 0.2);
+        }
 
-.back-btn {
-    display: block;
-    text-align: center;
-    background: linear-gradient(135deg, #8C6D28, #C5A059, #E6C579);
-    color: #050508;
-    border: none;
-    padding: 14px;
-    border-radius: 2px;
-    text-decoration: none;
-    font-weight: bold;
-    letter-spacing: 3px;
-    margin-top: 30px;
-    transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(197, 160, 89, 0.2);
-}
+        .energy-fill {
+            background: linear-gradient(90deg, #8C6D28, var(--gold-light));
+            height: 100%;
+        }
 
-.back-btn:hover {
-    opacity: 0.95;
-    box-shadow: 0 6px 20px rgba(197, 160, 89, 0.4);
-}
-</style>
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            flex: 1;
+            text-align: center;
+            background: linear-gradient(135deg, #8C6D28, #C5A059, #E6C579);
+            color: #050508;
+            border: none;
+            padding: 14px;
+            border-radius: 2px;
+            text-decoration: none;
+            font-weight: bold;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.2);
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="container" id="captureArea">
     <header>
         <h1>✦ 八字星象導航 ✦</h1>
+        <div class="header-sub">
+            今日流日：{{ today_stream.day_ganzhi }} · 問策重心：{{ focus_topic }}
+        </div>
     </header>
 
+    <!-- 1. AI 靈犀批命（通俗解讀與籤詩） -->
     <div class="card" style="border: 1px solid var(--gold-light); background: linear-gradient(135deg, rgba(20, 15, 30, 0.95), rgba(10, 10, 15, 0.95));">
-        <h2>✦ 命理大師 · 靈犀批命 ✦</h2>
-        <div style="text-align: center; margin: 18px 0; padding: 15px; border-left: 2px solid var(--gold-primary); border-right: 2px solid var(--gold-primary); background: rgba(0, 0, 0, 0.3);">
-            <p style="font-size: 17px; color: var(--gold-light); letter-spacing: 3px; font-weight: bold; margin: 0; line-height: 1.8;">
+        <h2>✦ 靈犀批命 · 心態指引 ✦</h2>
+        <div style="text-align: center; margin: 15px 0; padding: 14px; border-left: 2px solid var(--gold-primary); border-right: 2px solid var(--gold-primary); background: rgba(0, 0, 0, 0.35);">
+            <p style="font-size: 16px; color: var(--gold-light); letter-spacing: 2.5px; font-weight: bold; margin: 0; line-height: 1.8; white-space: pre-line;">
                 {{ ai_fortune.poem }}
             </p>
         </div>
-        <p style="font-size: 15px; line-height: 1.8; color: #EAEAEA; margin-top: 10px;">
+        <p style="font-size: 14px; line-height: 1.8; color: #EAEAEA;">
             {{ ai_fortune.analysis }}
         </p>
     </div>
 
+    <!-- 2. AI 開運飲食與防焦慮金句 -->
+    <div class="card" style="display: flex; gap: 14px; flex-direction: column;">
+        <div>
+            <h2>🍵 今日能量補給</h2>
+            <p style="color: var(--gold-light); font-size: 15px; margin-top: 6px;">
+                ✦ 推薦嘗試：<strong>{{ ai_fortune.food_tip }}</strong>
+            </p>
+        </div>
+        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.2); padding-top: 10px;">
+            <h2>🧘 一秒防焦慮咒語</h2>
+            <p style="color: #FFFFFF; font-style: italic; font-size: 15px; margin-top: 6px;">
+                「 {{ ai_fortune.mantra }} 」
+            </p>
+        </div>
+    </div>
+
+    <!-- 3. 今日流日動態 -->
+    <div class="card">
+        <h2>今日流日交互氣場 (Daily Dynamics)</h2>
+        <p style="color: var(--gold-light); font-size: 14px; line-height: 1.6;">
+            ✦ {{ stream_notice }}
+        </p>
+    </div>
+
+    <!-- 4. 命主核心 -->
     <div class="card">
         <h2>你的命主核心 (Day Master)</h2>
         <h1>{{ day_master | safe }} · {{ day_profile.nature }}</h1>
-        <p style="color: var(--gold-light); line-height: 1.7; font-size: 15px;">{{ day_profile.traits }}</p>
+        <p style="color: var(--gold-light); line-height: 1.6; font-size: 14px;">{{ day_profile.traits }}</p>
     </div>
 
+    <!-- 5. 五行能量加權分佈 -->
     <div class="card">
-        <h2>五行先天氣場能量 (Energy Distribution)</h2>
-        <div style="margin-top: 18px;">
+        <h2>五行先天氣場能量（含藏干加權）</h2>
+        <div style="margin-top: 15px;">
             {% for item in distribution %}
             <div class="energy-row">
                 <div class="energy-header">
                     <span>{{ item.name }}行</span>
-                    <span style="color: var(--gold-light);">{{ item.count }} 字 ({{ item.percent }}%)</span>
+                    <span style="color: var(--gold-light);">{{ item.score }} 分 ({{ item.percent }}%)</span>
                 </div>
                 <div class="energy-track">
                     <div class="energy-fill" style="width: {{ item.percent }}%;"></div>
@@ -201,17 +239,12 @@ p{
             </div>
             {% endfor %}
         </div>
-        <p style="font-size: 13px; color: #A0AAB2; margin-top: 15px; border-top: 1px solid rgba(197, 160, 89, 0.15); padding-top: 10px;">
-            ✦ 命中偏弱元素為：<strong style="color: var(--gold-light);">{{ useful_element }}</strong>，建議重點藉由開運色彩與宜行指南平衡調和。
+        <p style="font-size: 13px; color: #A0AAB2; margin-top: 12px; border-top: 1px solid rgba(197, 160, 89, 0.15); padding-top: 8px;">
+            ✦ 命中偏弱元素為：<strong style="color: var(--gold-light);">{{ useful_element }}</strong>，建議以此作為調和重心。
         </p>
     </div>
 
-    <div class="card theme">
-        <h2>今日星象主題</h2>
-        <h1>{{ theme.title }}</h1>
-        <p>{{ theme.desc }}</p>
-    </div>
-
+    <!-- 6. 四柱八字排盤 -->
     <div class="card">
         <h2>四柱命盤解析</h2>
         <div class="bazi-grid">
@@ -222,27 +255,48 @@ p{
         </div>
     </div>
 
+    <!-- 7. 色彩指南與 AI 專屬宜忌 -->
     <div class="card">
         <h2>開運色彩指南</h2>
         <p>🎨 核心色系：{{ lucky_colors[0] }}、{{ lucky_colors[1] }}</p>
     </div>
 
     <div class="card">
-        <h2>今日宜行</h2>
-        {% for item in good %}
-        <p>✨ {{ item }}</p>
-        {% endfor %}
+        <h2>今日專屬行動清單</h2>
+        <div style="margin-bottom: 12px;">
+            <span style="color: #68D391; font-weight: bold; font-size: 13px;">【宜】</span>
+            {% for item in good %}
+            <p style="margin: 4px 0;">✨ {{ item }}</p>
+            {% endfor %}
+        </div>
+        <div style="border-top: 1px dashed rgba(197, 160, 89, 0.2); padding-top: 10px;">
+            <span style="color: #FC8181; font-weight: bold; font-size: 13px;">【忌】</span>
+            {% for item in bad %}
+            <p style="margin: 4px 0;">⚡ {{ item }}</p>
+            {% endfor %}
+        </div>
     </div>
-
-    <div class="card">
-        <h2>今日宜避</h2>
-        {% for item in bad %}
-        <p>⚡ {{ item }}</p>
-        {% endfor %}
-    </div>
-
-    <a href="/" class="back-btn">← 重新測算命盤</a>
 </div>
+
+<div class="btn-group">
+    <button class="btn" onclick="downloadCard()">✦ 下載專屬籤卡</button>
+    <a href="/" class="btn" style="display: flex; align-items: center; justify-content: center;">← 重新測算</a>
+</div>
+
+<script>
+function downloadCard() {
+    const element = document.getElementById('captureArea');
+    html2canvas(element, {
+        backgroundColor: '#050508',
+        scale: 2
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'bazi_fortune_card.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+}
+</script>
 
 </body>
 </html>
