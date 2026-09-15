@@ -94,39 +94,31 @@ def consult_ai_master(bazi_summary, question):
     clean_summary = str(bazi_summary).replace("\n", " ").strip()
     clean_question = str(question).replace("\n", " ").strip()
 
-    prompt_content = f"""你是一位說話精煉、親切、通俗且直擊痛點的現代生活命理導師。
-問命者八字背景為：{clean_summary}
+    system_instruction = (
+        "你是一位精通子平八字與現代生活心理的生活命理導師。"
+        "你的說話風格溫暖、篤定、直擊痛點且完全通俗。"
+        "回答時必須直接給予生活化的具體判斷與行動建議，字數控制在 100 字以內，嚴禁使用晦澀難懂的八字術語。"
+    )
 
-問命者此刻有具體疑惑追問你：
-「{clean_question}」
-
-請給予 100 字以內的大白話指引：
-1. 結合其八字氣質給予直率、務實的判斷或行動策略。
-2. 語氣溫和堅定，切勿使用晦澀術語。"""
+    user_message = f"【問命者八字背景】{clean_summary}\n【問命者當前疑惑】{clean_question}"
 
     try:
-        response = client.models.generate_content(
+        chat = client.chats.create(
             model="gemini-2.5-flash",
-            contents=prompt_content,
             config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
                 temperature=0.7,
                 max_output_tokens=300
             )
         )
+        response = chat.send_message(user_message)
 
         if hasattr(response, "text") and response.text:
             return response.text.strip()
-
-        if getattr(response, "candidates", None) and response.candidates:
-            cand = response.candidates[0]
-            if cand.content and cand.content.parts:
-                part_text = cand.content.parts[0].text
-                if part_text:
-                    return part_text.strip()
 
         return "大師推演此時氣場以守為先，眼前專注蓄力，時機成熟時自會水到渠成。"
 
     except Exception as e:
         err_msg = f"{type(e).__name__}: {str(e)}"
-        print(f">>> [Consult AFC Error]: {err_msg}")
+        print(f">>> [Chat API Error]: {err_msg}")
         return "大師推演此時動靜皆有機緣，把眼前的準備做好，方向自會明朗。"
