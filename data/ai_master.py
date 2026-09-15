@@ -99,24 +99,32 @@ def consult_ai_master(bazi_summary, question):
 1. 結合其八字氣質給予直率、務實的判斷或行動策略。
 2. 語氣溫和堅定，切勿使用晦澀術語。"""
 
-    try:
-        response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(temperature=0.7)
-        )
-        
-        reply_text = getattr(response, "text", None)
-        if reply_text:
-            return reply_text.strip()
-        
-        if getattr(response, "candidates", None) and response.candidates[0].content.parts:
-            part = response.candidates[0].content.parts[0]
-            if hasattr(part, "text") and part.text:
-                return part.text.strip()
+    models_to_try = ["gemini-3.6-flash"]
 
-        return "大師感受到了你的氣場，但天機微渺，此時建議先做好手頭準備，靜候良機。"
-        
-    except Exception as e:
-        print(f"Consult Error: {type(e).__name__} - {e}")
-        return "大師思緒稍有阻隔，請換個方式再問一次。"
+    for model_name in models_to_try:
+        try:
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.7,
+                    max_output_tokens=300
+                )
+            )
+
+            reply_text = getattr(response, "text", None)
+            if reply_text:
+                return reply_text.strip()
+
+            if getattr(response, "candidates", None) and response.candidates:
+                candidate = response.candidates[0]
+                if candidate.content and candidate.content.parts:
+                    part = candidate.content.parts[0]
+                    if hasattr(part, "text") and part.text:
+                        return part.text.strip()
+
+        except Exception as e:
+            print(f"Consult Error with {model_name}: {type(e).__name__} - {e}")
+            continue
+
+    return "關於這件事，命盤顯示動靜皆有機緣。先將眼前的籌備做到極致，時機成熟時自會有清晰的方向引導你。"
